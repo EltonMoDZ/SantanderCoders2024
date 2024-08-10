@@ -1,5 +1,5 @@
 public class Utilitarios {
-    public static final Double PI = 3.14;
+    private static final Double PI = 3.14;
 
     public static Double conversorCelciusparaFahrenheit(Double x){
         return (x * 1.8) + 32;
@@ -14,8 +14,7 @@ public class Utilitarios {
             throw new IllegalArgumentException("O raio deve ser positivo.");
         }
         final Double VALOR = 2 * PI * raio;
-        final String RESULTADO = String.format("%.2f", VALOR);
-        return RESULTADO;
+        return String.format("%.2f", VALOR);
     }
 
     public static double calcularAreaCirculo(double raio) {
