@@ -14,6 +14,7 @@ public class Application {
         Agenda.listar();
         Agenda.remover(1);
         Agenda.listar();
+        Agenda.remover(10);
 
     }
 }
@@ -27,7 +28,7 @@ class Agenda {
     static void adicionar(String nome, String email, String telefone){
         int indice = buscarNovoIndice();
         if (indice < 0 || indice > contatos.length) {
-            System.out.println("Índice fora dos limites do array ou Agenda cheia");
+            System.out.println("Agenda cheia");
             return;
          }
         contatos[indice][0] = nome;
@@ -38,8 +39,8 @@ class Agenda {
     }
 
     static void remover(int contato) {
-        if (contato < 0 || contato > contatos.length) {
-            System.out.println("Índice fora dos limites do array");
+        if (contato < 0 || contato > contatos.length || contatos[contato][0] == null) {
+            System.out.println("Índice fora dos limites do array ou não existe");
             return;
         }
     
