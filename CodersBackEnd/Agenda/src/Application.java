@@ -13,8 +13,8 @@ public class Application {
         Agenda.adicionar("Peralta", "@191", "982723");
         Agenda.listar();
         Agenda.remover(1);
-        System.out.println();
         Agenda.listar();
+
     }
 }
 
@@ -34,6 +34,7 @@ class Agenda {
         contatos[indice][1] = email;
         contatos[indice][2] = telefone;
         System.out.println("Novo contato adicionado com sucesso");
+        System.out.println();
     }
 
     static void remover(int contato) {
@@ -65,11 +66,14 @@ class Agenda {
                 }
             }
         }
+        System.out.println("Contato removido");
+        System.out.println();
     
     }
 
     static void detalhar(int i){
         System.out.printf("Detalhes do contado: %s\nEmail: %s\nTelefone: %s\n", contatos[i][0], contatos[i][1], contatos[i][2]);
+        System.out.println();
     }
 
     static void listar(){
@@ -82,6 +86,7 @@ class Agenda {
                 System.out.printf("%s, %s\n", i, contatos[i][0]);
             }
         }
+        System.out.println();
     }
     
     static int buscarNovoIndice(){
