@@ -1,36 +1,112 @@
-/**
- * Application
- */
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 public class Application {
     public static void main(String[] args) {
-        Agenda.adicionar("Elton", "aaa@gmail.com", "9199812543");
-        Agenda.adicionar("Suel", "@", "9821");
-        Agenda.adicionar("Holden", "@323", "982323");
-        Agenda.listar();
-        Agenda.detalhar(0);
-        Agenda.remover(0);
-        Agenda.listar();
-        Agenda.adicionar("Peralta", "@191", "982723");
-        Agenda.listar();
-        Agenda.remover(1);
-        Agenda.listar();
-        Agenda.remover(10);
-
+        Agenda agenda = new Agenda();
+        new AgendaGUI(agenda);
     }
 }
 
-/**
- * Agenda
- */
-class Agenda {
-    static String[][] contatos = new String[100][3];
+class AgendaGUI {
+    private Agenda agenda;
+    private JFrame frame;
+    private JTextField nameField;
+    private JTextField emailField;
+    private JTextField phoneField;
+    private JTextField removeIndexField;
+    private JTextArea outputArea;
 
-    static void adicionar(String nome, String email, String telefone){
+    public AgendaGUI(Agenda agenda) {
+        this.agenda = agenda;
+
+        frame = new JFrame("Agenda");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(400, 500);
+        frame.setLayout(new BorderLayout());
+
+        JPanel inputPanel = new JPanel();
+        inputPanel.setLayout(new GridLayout(5, 2));
+
+        inputPanel.add(new JLabel("Nome:"));
+        nameField = new JTextField();
+        inputPanel.add(nameField);
+
+        inputPanel.add(new JLabel("Email:"));
+        emailField = new JTextField();
+        inputPanel.add(emailField);
+
+        inputPanel.add(new JLabel("Telefone:"));
+        phoneField = new JTextField();
+        inputPanel.add(phoneField);
+
+        JButton addButton = new JButton("Adicionar");
+        addButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String nome = nameField.getText();
+                String email = emailField.getText();
+                String telefone = phoneField.getText();
+
+                if (agenda.verificarTelefoneExistente(telefone)) {
+                    JOptionPane.showMessageDialog(frame, "Telefone já existe na agenda!");
+                } else {
+                    agenda.adicionar(nome, email, telefone);
+                    atualizarLista();
+                }
+            }
+        });
+        inputPanel.add(addButton);
+
+        inputPanel.add(new JLabel("Índice para Remover:"));
+        removeIndexField = new JTextField();
+        inputPanel.add(removeIndexField);
+
+        JButton removeButton = new JButton("Remover");
+        removeButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    int index = Integer.parseInt(removeIndexField.getText());
+                    agenda.remover(index);
+                    atualizarLista();
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(frame, "Índice inválido!");
+                }
+            }
+        });
+        inputPanel.add(removeButton);
+
+        outputArea = new JTextArea();
+        outputArea.setEditable(false);
+        frame.add(new JScrollPane(outputArea), BorderLayout.CENTER);
+
+        frame.add(inputPanel, BorderLayout.NORTH);
+        frame.setVisible(true);
+    }
+
+    private void atualizarLista() {
+        outputArea.setText("");
+        String[] contatos = agenda.listar();
+        for (String contato : contatos) {
+            if (contato != null) {
+                outputArea.append(contato + "\n");
+            }
+        }
+    }
+}
+
+class Agenda {
+    private final String[][] contatos = new String[100][3];
+
+    public void adicionar(String nome, String email, String telefone) {
         int indice = buscarNovoIndice();
-        if (indice < 0 || indice > contatos.length) {
+        if (indice < 0 || indice >= contatos.length) {
             System.out.println("Agenda cheia");
             return;
-         }
+        }
         contatos[indice][0] = nome;
         contatos[indice][1] = email;
         contatos[indice][2] = telefone;
@@ -38,69 +114,56 @@ class Agenda {
         System.out.println();
     }
 
-    static void remover(int contato) {
-        if (contato < 0 || contato > contatos.length || contatos[contato][0] == null) {
+    public boolean verificarTelefoneExistente(String telefone) {
+        for (String[] contato : contatos) {
+            if (contato[2] != null && contato[2].equals(telefone)) return true;
+        }
+        return false;
+    }
+
+    public void remover(int contato) {
+        contato--;
+        if (contato < 0 || contato >= contatos.length || contatos[contato][0] == null) {
             System.out.println("Índice fora dos limites do array ou não existe");
             return;
         }
-    
-        while (contatos[contato][2] != null) {
-            contatos[contato][0] = null;
-            contatos[contato][1] = null;
-            contatos[contato][2] = null;
-        }
-    
+
+        contatos[contato][0] = null;
+        contatos[contato][1] = null;
+        contatos[contato][2] = null;
+
         for (int i = contato; i < contatos.length - 1; i++) {
-            int proximoContato = i + 1;
-            if(i != (contatos.length - 1)){
-                if (contatos[i][0] == null && contatos[proximoContato][0] != null) {
-                contatos[i][0] = contatos[proximoContato][0];
-                contatos[i][1] = contatos[proximoContato][1];
-                contatos[i][2] = contatos[proximoContato][2];
-
-                contatos[proximoContato][0] = null;
-                contatos[proximoContato][1] = null;
-                contatos[proximoContato][2] = null;
-
-                } else {
-                   break;
-                }
+            if (contatos[i + 1][0] != null) {
+                contatos[i][0] = contatos[i + 1][0];
+                contatos[i][1] = contatos[i + 1][1];
+                contatos[i][2] = contatos[i + 1][2];
+                contatos[i + 1][0] = null;
+                contatos[i + 1][1] = null;
+                contatos[i + 1][2] = null;
+            } else {
+                break;
             }
         }
         System.out.println("Contato removido");
         System.out.println();
-    
     }
 
-    static void detalhar(int i){
-        System.out.printf("Detalhes do contado: %s\nEmail: %s\nTelefone: %s\n", contatos[i][0], contatos[i][1], contatos[i][2]);
-        System.out.println();
+    public String[] listar() {
+        String[] lista = new String[contatos.length];
+        for (int i = 0; i < contatos.length; i++) {
+            if (contatos[i][0] != null) {
+                lista[i] = i + 1 + ": " + contatos[i][0] + " - " + contatos[i][1] + " - " + contatos[i][2];
+            }
+        }
+        return lista;
     }
 
-    static void listar(){
-        if(contatos[0][0] == null){
-            System.out.println("Não existe ainda contatos na agenda.");
-            return;
-        }
-        for(int i = 0; i < contatos.length; i++){
-            if(contatos[i][0] != null){
-                System.out.printf("%s, %s\n", i, contatos[i][0]);
+    private int buscarNovoIndice() {
+        for (int i = 0; i < contatos.length; i++) {
+            if (contatos[i][0] == null) {
+                return i;
             }
         }
-        System.out.println();
+        return -1;
     }
-    
-    static int buscarNovoIndice(){
-        int indice = -1;
-        for(int i = 0; i < contatos.length; i++){
-            if(contatos[i][0] == null){
-                indice = i;
-                break;
-            }
-        }
-        return indice;
-    }
-    
 }
-
-
