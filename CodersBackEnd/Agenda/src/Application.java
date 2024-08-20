@@ -99,7 +99,7 @@ class AgendaGUI {
 }
 
 class Agenda {
-    private final String[][] contatos = new String[100][3];
+    private final String[][] contatos = new String[1][3];
 
     public void adicionar(String nome, String email, String telefone) {
         int indice = buscarNovoIndice();
